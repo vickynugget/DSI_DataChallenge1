@@ -1,0 +1,126 @@
+---
+title: "Data Challenge 1"
+author: "Xueqi Huang"
+date: "September 25, 2021"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 1
+    toc_float: yes
+
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+## GitHub repository
+https://github.com/vickynugget/DSI_DataChallenge1.git
+
+
+```{r}
+# Load library 
+library(readr)
+library(tidyverse)
+library(here)
+library(RColorBrewer)
+```
+
+
+```{r}
+# Read data 
+state_milk_production <- read_csv(here("data/state_milk_production.csv"))
+clean_cheese <- read_csv(here("data/clean_cheese.csv"))
+fluid_milk_sales <- read_csv(here("data/fluid_milk_sales.csv"))
+milk_products_facts <- read_csv(here("data/milk_products_facts.csv"))
+milkcow_facts <- read_csv(here("data/milkcow_facts.csv"))
+```
+
+
+```{r}
+# disable scientific notation
+options(scipen = 999)
+```
+
+# Figure 1
+```{r figs, fig.cap="Figure 1: The plot shows the milk production versus average number of milk cows each year. According to the graph number of milk cows increase from 1980 kept decrease from 1980 to 2000 and increase a little around 2010. However the milk production was constantly increasing. Probably indicating the average milk production per cow increase at time goes by. "}
+# Scatter plot showing the milk production in pounds vs the average number of milk cows
+ggplot(data = milkcow_facts, # initialize ggplot object
+       aes(x = avg_milk_cow_number, y = milk_production_lbs, color = year)) + 
+  geom_point() + # scatter plot
+  labs(x = 'Average number of milk cows',  # relabel x axis
+       y = 'Total Milk production in pounds', # relabel y axis
+       title = 'Milk production amd average number of milk cows') + # add title
+  guides(color = guide_legend(title = 'Year')) # label the legend 
+
+```
+
+# Figure 2
+```{r figs2, fig.cap="Figure 2: This is a line plot shows the total milk production in each region from 1970 to 2017. Mountain, Northeast, Pacific, Northern plains and Southern plains had generally increase milk production over the years while Mountain and Pacific increased most. Milk production in lake states increased first then drop a little and continued increase around 2000. In other regions the milk production were either decreased over the years or kept same. "}
+# Line plots for the milk production vs the year faceted by region
+milk_production_by_region <- state_milk_production %>% # assign output
+  group_by(region, year) %>% # group by region and year
+  summarise(milk_produced = sum(milk_produced)) # find the total production of milk per year
+
+ggplot(data = milk_production_by_region,  # initialize ggplot object
+       aes(x = year, y = milk_produced/1000000, color = region)) + 
+  geom_line() + # line plot
+  labs(x = 'Year',  # relabel x axis
+       y = 'Milk produced (in millions of pounds)', # relabel y axis
+       title = 'Total milk production in each region over time') + # add title
+  facet_wrap(~ region, ncol = 2) + # facet the plot by region
+  theme(legend.position = "none") # remove the legend from the plot
+```
+
+# Figure 3
+```{r figs3, fig.cap="Figure 3: This is a line plot showing the amount of each milk products sold over time. From the graph, we can see Eggnog always had the lowest production while Whole milk and Reduced Fat were the top two products. Whole milk was leading until 1990s' then Reducted Fat milk exceeded. Production of Eggnog, Skim, Low fat and Flavored(Not whole) milk increase while Whole, Flavored(Whole) milk and Buttermilk production decreased. "}
+# Line plot showing the amount (in pounds) of each milk products sold over time using
+fluid_milk_sales %>% 
+  filter(milk_type != 'Total Production') %>% # filter out total production
+  ggplot(aes(x = year, y = pounds, color = milk_type)) + # initialize ggplot object
+  geom_line() + # line plot
+  coord_trans(y = 'log10') + # log scale
+  labs(x = 'Year',  # relabel x axis
+       y = 'Milk produced (in pounds)', # relabel y axis
+       title = 'Milk products sold over time') + # add title
+  guides(color = guide_legend(title = 'Milk type'))  # label the legend 
+
+```
+
+
+# Figure 4
+```{r figs4, fig.cap="Figure 4: This is a stacked bar plot shows the different type of cheeses consumed over time. The overall all cheese consumprtion increase since 1970 and. Chedddar and Mozzarella were the two largest type of consumption while Blue had the lowest consumption. The consumption of all types of cheeses increased except Blue, processed cheese and Swiss. "}
+# Stacked bar plot of the different type of cheeses consumed over time
+clean_cheese_long <- clean_cheese %>%
+  select(-'Total American Chese', -'Total Italian Cheese', 
+         -'Total Natural Cheese', -'Total Processed Cheese Products') %>% # remove total cheese variables
+  pivot_longer(cols = -Year) # change columns except Year to long format
+clean_cheese_long$name <- toupper(clean_cheese_long$name) # make cheese categories capitalized
+
+ggplot(data = clean_cheese_long, aes(x = Year, y = value, fill = name)) + # initialize ggplot object
+  geom_bar(position="stack", stat = 'identity') + # stacked bar plot
+  scale_fill_brewer(palette="Set3") + # change color
+  labs(x = 'Year', # relabel x axis
+       y = 'Cheese consumption in lbs per person', # relabel y axis
+       title = 'Different type of cheeses consumed over time') # add title
+```
+
+# Figure 5
+```{r figs5, fig.cap="Figure 5: This is a line plot shows the average milk consumption per person versus the average paid price for milk. The line trend shows that even there's some fluctuation when the price of milk was low, generally as the average price of milk decrease, milk consumption increase. This probably indicated as price of milk drops, people consume more milk. "}
+# Make a line plot shows the relationship between milk consumption and price
+merge(milkcow_facts, milk_products_facts, by = 'year') %>% # merge two df by year
+  ggplot(aes(x = avg_price_milk, y = fluid_milk)) +  # initialize ggplot object
+  geom_line(lwd = 1, color = 'Orange') + # set line color and width
+  labs(x = 'Average price paid for milk (dollars per pound)',  # relabel x axis
+       y = 'Average milk consumption in lbs per person', # relabel y axis
+       title = 'Relationship between milk consumption and price') # add title
+```
+
+
+
+
+
+
+
+
+
