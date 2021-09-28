@@ -46,10 +46,10 @@ options(scipen = 999)
 ```{r figs, fig.cap="Figure 1: The plot shows the milk production versus average number of milk cows each year. According to the graph number of milk cows increase from 1980 kept decrease from 1980 to 2000 and increase a little around 2010. However the milk production was constantly increasing. Probably indicating the average milk production per cow increase at time goes by. "}
 # Scatter plot showing the milk production in pounds vs the average number of milk cows
 ggplot(data = milkcow_facts, # initialize ggplot object
-       aes(x = avg_milk_cow_number, y = milk_production_lbs, color = year)) + 
+       aes(x = avg_milk_cow_number/1000000, y = milk_production_lbs/1000000, color = year)) + 
   geom_point() + # scatter plot
-  labs(x = 'Average number of milk cows',  # relabel x axis
-       y = 'Total Milk production in pounds', # relabel y axis
+  labs(x = 'Number of milk cows (in millions)',  # relabel x axis
+       y = 'Milk production (in millions of pounds)', # relabel y axis
        title = 'Milk production amd average number of milk cows') + # add title
   guides(color = guide_legend(title = 'Year')) # label the legend 
 
@@ -89,7 +89,7 @@ fluid_milk_sales %>%
 
 
 # Figure 4
-```{r figs4, fig.cap="Figure 4: This is a stacked bar plot shows the different type of cheeses consumed over time. The overall all cheese consumprtion increase since 1970 and. Chedddar and Mozzarella were the two largest type of consumption while Blue had the lowest consumption. The consumption of all types of cheeses increased except Blue, processed cheese and Swiss. "}
+```{r figs4, fig.cap="Figure 4: This is a stacked bar plot shows the different type of cheeses consumed over time. The overall all cheese consumprtion increase since 1970 and. Chedddar and Mozzarella were the two largest type of consumption while Blue had the lowest consumption. The consumption of all types of cheeses increased except Blue, Muenster, processed cheese and Swiss. "}
 # Stacked bar plot of the different type of cheeses consumed over time
 clean_cheese_long <- clean_cheese %>%
   select(-'Total American Chese', -'Total Italian Cheese', 
