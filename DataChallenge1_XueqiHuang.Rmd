@@ -17,7 +17,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ## GitHub repository
 https://github.com/vickynugget/DSI_DataChallenge1.git
 
-
+## Setup
 ```{r}
 # Load library 
 library(readr)
